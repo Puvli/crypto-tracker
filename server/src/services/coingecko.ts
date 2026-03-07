@@ -28,7 +28,7 @@ export class CoinGeckoService {
       throw new Error(`CoinGecko API error: ${res.status}`);
     }
 
-    const data: CoinPrice[] = await res.json();
+    const data = (await res.json()) as CoinPrice[];
     cachedPrices = data;
     lastUpdated = new Date();
     return data;

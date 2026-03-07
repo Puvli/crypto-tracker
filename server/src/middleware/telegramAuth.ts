@@ -19,12 +19,18 @@ declare global {
 export function validateTelegramData(req: Request, res: Response, next: NextFunction) {
   const initData = req.headers['x-telegram-init-data'] as string;
 
+  const botToken = process.env.BOT_TOKEN;
+
   if (!initData) {
+    if (!botToken) {
+      // Dev mode: no Telegram, no token — use mock user
+      req.telegramUser = { id: 1, first_name: 'Dev', username: 'dev_user' };
+      next();
+      return;
+    }
     res.status(401).json({ error: 'Missing Telegram init data' });
     return;
   }
-
-  const botToken = process.env.BOT_TOKEN;
 
   if (!botToken) {
     console.warn('BOT_TOKEN not set — skipping validation in dev mode');

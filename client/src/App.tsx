@@ -26,7 +26,8 @@ export function App() {
       c.symbol.toLowerCase().includes(search.toLowerCase())
   );
 
-  const favoritePrices = prices.filter((c) => user?.favorites.includes(c.id));
+  const favorites = user?.favorites || [];
+  const favoritePrices = prices.filter((c) => favorites.includes(c.id));
 
   return (
     <div className="app">
