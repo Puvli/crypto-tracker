@@ -1,46 +1,10 @@
-version: '3.8'
-
 services:
-  mongo:
-    image: mongo:7
-    container_name: crypto-tracker-mongo
+  app:
+    build: .
     ports:
-      - '27017:27017'
+      - "5173:5173"
     volumes:
-      - mongo-data:/data/db
-    environment:
-      MONGO_INITDB_DATABASE: crypto_tracker
-
-  server:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    container_name: crypto-tracker-server
-    ports:
-      - '3001:3001'
-    depends_on:
-      - mongo
-    environment:
-      - MONGO_URI=mongodb://mongo:27017/crypto_tracker
-      - PORT=3001
-      - BOT_TOKEN=${BOT_TOKEN}
-    volumes:
-      - ./server/src:/app/src
-    restart: unless-stopped
-
-  client:
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-    container_name: crypto-tracker-client
-    ports:
-      - '5173:5173'
-    depends_on:
-      - server
-    volumes:
-      - ./client/src:/app/src
-      - ./client/public:/app/public
-    restart: unless-stopped
-
-volumes:
-  mongo-data:
+      - .:/app
+      - /app/node_modules
+    env_file:
+      - .env
