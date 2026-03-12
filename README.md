@@ -1,35 +1,38 @@
-# CryptoTracker - Telegram Mini App
+# CryptoTracker
 
-Telegram Mini App for tracking cryptocurrency prices with favorites and price alerts.
+Client-side SPA for tracking cryptocurrency prices with favorites, interactive charts, and Firebase authentication.
 
-Built with **React + TypeScript**, **Express**, **MongoDB**, **Telegram Web App SDK**, and **CoinGecko API**.
+Built with **React + TypeScript**, **Vite**, **Firebase Auth**, **Recharts**, and **CoinGecko API**.
+
+Deployed on **GitHub Pages**: pushes to `main` trigger automatic deployment via GitHub Actions.
 
 ## Features
 
 - Real-time cryptocurrency prices (top 50 by market cap)
 - 7-day sparkline charts for each coin
-- Search and filter coins
-- Add coins to favorites (synced per Telegram user)
-- Price alerts: get notified when a coin crosses your target price
-- Adaptive UI that follows the Telegram theme
-- Telegram user authentication via `initData` validation
+- Detailed coin view with interactive price charts (24h / 7d / 30d / 1y)
+- Search and filter coins by name or symbol
+- Favorites — works with or without authentication (localStorage-based)
+- Firebase authentication (email/password + Google OAuth)
+- Dark glassmorphism UI with animated gradients
 
 ## Architecture
 
 ```
 crypto-tracker/
-├── client/          # React + Vite frontend
-│   └── src/
-│       ├── components/   # UI components
-│       ├── hooks/        # useTelegram, useApi
-│       ├── styles/       # CSS (Telegram theme variables)
-│       └── types/        # TypeScript interfaces
-├── server/          # Express backend
-│   └── src/
-│       ├── routes/       # /crypto, /user, /alerts
-│       ├── models/       # Mongoose: User, Alert
-│       ├── services/     # CoinGecko integration
-│       └── middleware/   # Telegram auth validation
+├── src/
+│   ├── components/        # CoinTable, Nav, PriceChart, Sparkline
+│   ├── context/           # AuthContext (Firebase)
+│   ├── hooks/             # useFavorites
+│   ├── pages/             # Market, CoinDetail, Favorites, Login, Register
+│   ├── services/          # api.ts (CoinGecko), firebase.ts
+│   ├── App.tsx            # HashRouter routes
+│   ├── main.tsx           # Entry point
+│   └── styles.css         # Glassmorphism theme
+├── .github/workflows/
+│   └── deploy.yml         # GitHub Actions → GitHub Pages
+├── vite.config.ts
+├── Dockerfile
 └── docker-compose.yml
 ```
 
@@ -37,52 +40,58 @@ crypto-tracker/
 
 ### Prerequisites
 
-- Docker & Docker Compose
-- Telegram Bot Token (from [@BotFather](https://t.me/BotFather))
+- Node.js 20+
+- Firebase project (for authentication)
 
-### 1. Clone and configure
+### 1. Install and configure
 
 ```bash
-cd crypto-tracker
+npm install
 cp .env.example .env
-# Edit .env and add your BOT_TOKEN
+# Fill in your Firebase credentials in .env
 ```
 
-### 2. Run with Docker
+### 2. Run locally
 
 ```bash
-docker-compose up --build
+npm run dev
 ```
 
-This starts:
-- **MongoDB** on port 27017
-- **Express API** on port 3001
-- **Vite dev server** on port 5173
+Vite dev server starts on `http://localhost:5173`. CoinGecko API requests are proxied via `/cgapi` to avoid CORS issues.
 
-### 3. Set up Telegram Bot
+### 3. Build for production
 
-1. Create a bot via [@BotFather](https://t.me/BotFather)
-2. Use `/newapp` to create a Web App and set the URL to your public endpoint (use [ngrok](https://ngrok.com/) for local dev: `ngrok http 5173`)
-3. Open the bot in Telegram and launch the Mini App
+```bash
+npm run build
+npm run preview   # preview the build locally
+```
 
-## API Endpoints
+## Environment Variables
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/crypto/prices` | Get cached crypto prices |
-| GET | `/api/crypto/search?q=` | Search coins |
-| GET | `/api/crypto/coin/:id` | Get coin details |
-| GET | `/api/user/me` | Get/create user profile |
-| POST | `/api/user/favorites/:coinId` | Add to favorites |
-| DELETE | `/api/user/favorites/:coinId` | Remove from favorites |
-| GET | `/api/alerts` | List user alerts |
-| POST | `/api/alerts` | Create price alert |
-| DELETE | `/api/alerts/:id` | Delete alert |
+| Variable | Description |
+|----------|-------------|
+| `VITE_FIREBASE_API_KEY` | Firebase Web API Key |
+| `VITE_FIREBASE_AUTH_DOMAIN` | Firebase Auth domain |
+| `VITE_FIREBASE_PROJECT_ID` | Firebase Project ID |
+| `VITE_FIREBASE_STORAGE_BUCKET` | Firebase Storage bucket |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Firebase Messaging sender ID |
+| `VITE_FIREBASE_APP_ID` | Firebase App ID |
+
+## Routes
+
+| Route | Page | Description |
+|-------|------|-------------|
+| `/` | Market | Crypto listing with search |
+| `/coin/:id` | CoinDetail | Charts and market metrics |
+| `/favorites` | Favorites | Saved coins |
+| `/login` | Login | Email / Google sign-in |
+| `/register` | Register | Create account |
 
 ## Tech Stack
 
-- **Frontend**: React 18, TypeScript, Vite, Telegram Web App SDK
-- **Backend**: Express, TypeScript, Mongoose
-- **Database**: MongoDB 7
-- **API**: CoinGecko (free tier, no API key needed)
-- **Infrastructure**: Docker, Docker Compose
+- **Frontend**: React 18, TypeScript, Vite, React Router 6
+- **Charts**: Recharts, custom SVG sparklines
+- **Auth**: Firebase Authentication
+- **Data**: CoinGecko API v3 (free tier, no key needed)
+- **Deploy**: GitHub Actions → GitHub Pages
+- **Dev**: Docker Compose (optional)
