@@ -1,4 +1,4 @@
-const BASE = 'https://api.coingecko.com/api/v3';
+const BASE = import.meta.env.DEV ? '/cgapi' : 'https://api.coingecko.com/api/v3';
 
 export interface Coin {
   id: string;

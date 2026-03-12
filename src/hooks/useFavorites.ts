@@ -3,39 +3,38 @@ import { useAuth } from '../context/AuthContext';
 
 const STORAGE_KEY = 'crypto_favorites';
 
-function loadFavorites(uid: string): string[] {
+function getKey(uid?: string) {
+  return uid ? `${STORAGE_KEY}_${uid}` : STORAGE_KEY;
+}
+
+function loadFavorites(uid?: string): string[] {
   try {
-    const data = localStorage.getItem(`${STORAGE_KEY}_${uid}`);
+    const data = localStorage.getItem(getKey(uid));
     return data ? JSON.parse(data) : [];
   } catch {
     return [];
   }
 }
 
-function saveFavorites(uid: string, favs: string[]) {
-  localStorage.setItem(`${STORAGE_KEY}_${uid}`, JSON.stringify(favs));
+function saveFavorites(favs: string[], uid?: string) {
+  localStorage.setItem(getKey(uid), JSON.stringify(favs));
 }
 
 export function useFavorites() {
   const { user } = useAuth();
-  const [favorites, setFavorites] = useState<string[]>([]);
+  const [favorites, setFavorites] = useState<string[]>(() => loadFavorites(user?.uid));
 
   useEffect(() => {
-    if (user) {
-      setFavorites(loadFavorites(user.uid));
-    } else {
-      setFavorites([]);
-    }
+    setFavorites(loadFavorites(user?.uid));
   }, [user]);
 
   const toggle = useCallback(
     (coinId: string) => {
-      if (!user) return;
       setFavorites((prev) => {
         const next = prev.includes(coinId)
           ? prev.filter((id) => id !== coinId)
           : [...prev, coinId];
-        saveFavorites(user.uid, next);
+        saveFavorites(next, user?.uid);
         return next;
       });
     },

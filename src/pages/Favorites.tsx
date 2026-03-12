@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { useFavorites } from '../hooks/useFavorites';
 import { fetchCoins, type Coin } from '../services/api';
 import CoinTable from '../components/CoinTable';
 
 export default function Favorites() {
-  const { user, loading: authLoading } = useAuth();
   const { favorites } = useFavorites();
   const [coins, setCoins] = useState<Coin[]>([]);
   const [loading, setLoading] = useState(true);
@@ -17,9 +14,6 @@ export default function Favorites() {
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
-
-  if (authLoading) return <div className="loading"><div className="spinner" /></div>;
-  if (!user) return <Navigate to="/login" />;
 
   const favCoins = coins.filter((c) => favorites.includes(c.id));
 

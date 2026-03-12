@@ -25,7 +25,7 @@ export default function CoinTable({ coins }: { coins: Coin[] }) {
     <table className="coin-table">
       <thead>
         <tr>
-          {user && <th style={{ width: 40 }}></th>}
+          <th style={{ width: 40 }}></th>
           <th style={{ width: 50 }}>#</th>
           <th>Coin</th>
           <th>Price</th>
@@ -37,16 +37,14 @@ export default function CoinTable({ coins }: { coins: Coin[] }) {
       <tbody>
         {coins.map((coin, i) => (
           <tr key={coin.id} className="coin-row" onClick={() => navigate(`/coin/${coin.id}`)}>
-            {user && (
-              <td>
-                <button
-                  className="fav-star"
-                  onClick={(e) => { e.stopPropagation(); toggle(coin.id); }}
-                >
-                  {isFavorite(coin.id) ? '★' : '☆'}
-                </button>
-              </td>
-            )}
+            <td>
+              <button
+                className="fav-star"
+                onClick={(e) => { e.stopPropagation(); toggle(coin.id); }}
+              >
+                {isFavorite(coin.id) ? '★' : '☆'}
+              </button>
+            </td>
             <td className="coin-rank">{i + 1}</td>
             <td>
               <div className="coin-identity">
